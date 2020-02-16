@@ -19,7 +19,7 @@ if nota_alumno<5:
 elif nota_alumno<6:
 	print("Suficiente")
 
-elif: nota_alumno<7:
+elif nota_alumno<7:
 	print("Bien")
 
 elif nota_alumno<9:
