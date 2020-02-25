@@ -28,8 +28,8 @@ def conexionBBDD():
         messagebox.showwarning("Atencion", "La BBDD ya existe")
         
 def salirAplicacion():
-    valor=messagebox.askquestion("Salir", "Deseas salir de la aplicacion")
-    if valor=="yes":
+    valor = messagebox.askquestion("Salir", "Deseas salir de la aplicacion")
+    if valor == "yes":
         root.destroy()
 
 def limpiarCampos():
@@ -41,22 +41,26 @@ def limpiarCampos():
     textoComentario.delete(1.0, END)
 
 def Crear():
-    miConexion=sqlite3.connect("Usuarios")
-    miCursor=miConexion.cursor()
-    miCursor.execute("INSERT INTO DATOSUSUARIOS VALUES(NULL, '" + miNombre.get() +
-        "','" + miPass.get() +
-        "','" + miApellido.get() +
-        "','" + miDireccion.get() +
-        "','" + textoComentario.get("1.0", END) + "')")
+    miConexion = sqlite3.connect("Usuarios")
+    miCursor = miConexion.cursor()
+    datos = miNombre.get(), miPass.get(), miApellido.get(), miDireccion.get(), textoComentario.get("1.0", END)
+#    miCursor.execute("INSERT INTO DATOSUSUARIOS VALUES(NULL, '" + miNombre.get() +
+#        "','" + miPass.get() +
+#        "','" + miApellido.get() +
+#        "','" + miDireccion.get() +
+#        "','" + textoComentario.get("1.0", END) + "')")
+    miCursor.execute("INSERT INTO DATOSUSUARIOS VALUES(NULL, ?,?,?,?,?)", (datos))
+
+    
         
     miConexion.commit()
     messagebox.showinfo("BBDD", "Registro insertado con exito")
     
 def Leer():
-    miConexion=sqlite3.connect("Usuarios")
-    miCursor=miConexion.cursor()
+    miConexion = sqlite3.connect("Usuarios")
+    miCursor = miConexion.cursor()
     miCursor.execute("SELECT * FROM DATOSUSUARIOS WHERE ID=" + miId.get())
-    elUsuario=miCursor.fetchall()
+    elUsuario = miCursor.fetchall()
     for usuario in elUsuario:
         miId.set(usuario[0])
         miNombre.set(usuario[1])
@@ -67,16 +71,25 @@ def Leer():
     miConexion.commit()
     
 def Actualizar():
-    miConexion=sqlite3.connect("Usuarios")
-    miCursor=miConexion.cursor()
-    miCursor.execute("UPDATE DATOSUSUARIOS SET NOMBRE_USUARIO='" + miNombre.get() +
-        "', PASSWORD='" + miPass.get() +
-        "', APELLIDO='" + miApellido.get() +
-        "', DIRECCION='" + miDireccion.get() +
-        "', COMENTARIOS='" + textoComentario.get("1.0", END) +
-        "' WHERE ID=" + miId.get())
+    miConexion = sqlite3.connect("Usuarios")
+    miCursor = miConexion.cursor()
+    datos = miNombre.get(), miPass.get(), miApellido.get(), miDireccion.get(), textoComentario.get("1.0", END)
+#    miCursor.execute("UPDATE DATOSUSUARIOS SET NOMBRE_USUARIO='" + miNombre.get() +
+#                     "', PASSWORD='" + miPass.get() +
+#                     "', APELLIDO='" + miApellido.get() +
+#                     "', DIRECCION='" + miDireccion.get() +
+#                     "', COMENTARIOS='" + textoComentario.get("1.0", END) +
+#                     "' WHERE ID=" + miId.get())
+    miCursor.execute("UPDATE DATOSUSUARIOS SET NOMBRE_USUARIO=?, PASSWORD=?, APELLIDO=?, DIRECCION=?, COMENTARIOS=? WHERE ID=" + miId.get(), (datos))
     miConexion.commit()
     messagebox.showinfo("BBDD", "Registro actualizado con exito")
+    
+def Eliminar():
+    miConexion = sqlite3.connect("Usuarios")
+    miCursor = miConexion.cursor()
+    miCursor.execute("DELETE FROM DATOSUSUARIOS WHERE ID=" + miId.get())
+    miConexion.commit()
+    messagebox.showinfo("BBDD", "Registro borrado con exito")
         
 root = Tk()
 root.title("App CRUD")
@@ -95,7 +108,7 @@ crudMenu = Menu(barraMenu, tearoff=0)
 crudMenu.add_command(label="Crear", command=Crear)
 crudMenu.add_command(label="Leer", command=Leer)
 crudMenu.add_command(label="Actualizar", command=Actualizar)
-crudMenu.add_command(label="Borrar")
+crudMenu.add_command(label="Borrar", command=Eliminar)
 
 ayudaMenu = Menu(barraMenu, tearoff=0)
 ayudaMenu.add_command(label="Licencia")
@@ -110,11 +123,11 @@ barraMenu.add_cascade(label="Ayuda", menu=ayudaMenu)
 miFrame = Frame(root)
 miFrame.pack()
 
-miId=StringVar()
-miNombre=StringVar()
-miApellido=StringVar()
-miPass=StringVar()
-miDireccion=StringVar()
+miId = StringVar()
+miNombre = StringVar()
+miApellido = StringVar()
+miPass = StringVar()
+miDireccion = StringVar()
 
 cuadroID = Entry(miFrame, textvariable=miId)
 cuadroID.grid(row=0, column=1, padx=10, pady=10)
@@ -172,7 +185,7 @@ botonLeer.grid(row=1, column=1, sticky="e", padx=10, pady=10)
 botonActualizar = Button(miFrame2, text="Update", command=Actualizar)
 botonActualizar.grid(row=1, column=2, sticky="e", padx=10, pady=10)
 
-botonBorrar = Button(miFrame2, text="Delete")
+botonBorrar = Button(miFrame2, text="Delete", command=Eliminar)
 botonBorrar.grid(row=1, column=3, sticky="e", padx=10, pady=10)
 
 root.mainloop()
